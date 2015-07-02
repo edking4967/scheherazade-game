@@ -2,8 +2,22 @@
   <head></head>
   <body>
     <div id="game"></div>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">google.load("feeds", "1");</script>
     <script type="text/javascript" src="https://rawgithub.com/craftyjs/Crafty/release/dist/crafty-min.js"></script>
     <script>
+
+      function Story() // Story class
+      {
+        this.story = "";
+
+        /*
+        this.setStory = function(newStory){
+            this.story = newStory; 
+        };*/
+
+      }
+
       Crafty.init(500,350, document.getElementById('game'));
       Crafty.e('Floor, 2D, Canvas, Color')
         .attr({x: 0, y: 250, w: 500, h: 10})
@@ -59,21 +73,55 @@
 
 
 
+      // Image for story pickup
       Crafty.sprite("imgs/story.png", {story:[0,0,17,24]});
 
-      var story = Crafty.e("2D, DOM, story, Collision")
-                          .attr({x: 300, y:200})
-                          .checkHits('sche')
-                          .bind("HitOn", function(hitData)
-                                        {
-                                            //  readStory();
-                                            mainText.text("hello, Ana!");
-                                            this.destroy();
-                                        });
-
-
-
+       // Initial text
        mainText.text('Hello, my darling.');
+
+       var feed = setupFeed();
+
+       var storyCount = 0;
+       feed.load(function (data) {
+
+           // Parse data depending on the specified response format, default is JSON.
+
+           var storyArray = new Array(data.feed.entries.length);
+           var storyX = 100;
+
+           // Create story objects in game from feed
+
+           for(i=0; i<data.feed.entries.length; i++)
+           {
+
+              storyArray[i] = data.feed.entries[i].content;
+              Crafty.e("2D, DOM, story, Collision")
+                              .attr({x: storyX + 100 * i , y:200})
+                              .checkHits('sche')
+                              .bind("HitOn", function(hitData)
+                                            {
+                                                mainText.text(storyArray[storyCount]);
+                                                storyCount++;
+                                                this.destroy();
+                                            });
+
+
+           }
+
+       });
+
+       function setupFeed()
+       {
+           var feed = new google.feeds.Feed('http://thousandonestories.com/feed/');
+           /*
+           feed.load(function (data) {
+
+                       // Parse data depending on the specified response format, default is JSON.
+                       return data.feed;
+                   });
+                   */
+           return feed;
+       }
 
        function readStory()
        {
