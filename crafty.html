@@ -1,0 +1,85 @@
+<html>
+  <head></head>
+  <body>
+    <div id="game"></div>
+    <script type="text/javascript" src="https://rawgithub.com/craftyjs/Crafty/release/dist/crafty-min.js"></script>
+    <script>
+      Crafty.init(500,350, document.getElementById('game'));
+      Crafty.e('Floor, 2D, Canvas, Color')
+        .attr({x: 0, y: 250, w: 500, h: 10})
+        .color('#FF5500');
+
+      // Line below text:
+      var textLine = Crafty.e('2D, Canvas, Color')
+        .attr({x: 0, y: 100, w: 500, h: 4})
+        .color('black');
+
+      var mainText = Crafty.e('2D, DOM, Text')
+        .attr({
+          x: 10,
+          y: 10,
+          w: 480,
+          h: 80
+        });
+
+
+      // Start block
+      Crafty.e('2D, Canvas, Color, Gravity')
+        .attr({x: 0, y: 0, w: 50, h: 50})
+        .color('#F00')
+        .gravity('Floor');
+
+      // End block
+      Crafty.e('2D, Collision, Canvas, Color, Gravity')
+        .attr({x: 400, y: 0, w: 50, h: 50})
+        .color('#F00')
+        .gravity('Floor')
+        .bind("HitOn", function(hitData)
+            {
+                mainText.text("Good night.");
+            });
+
+
+      Crafty.sprite("imgs/scheherazade.png", {sche:[0,0,57,34]});
+      var sche_entity = Crafty.e("2D, DOM, sche, Gravity, Fourway, Collision")
+                          .gravity('Floor')
+                          .fourway(4);
+
+      Crafty.sprite("imgs/king.png", {king:[0,0,32,46]});
+
+      var king = Crafty.e("2D, DOM, king, Gravity, Collision")
+                          .gravity('Floor')
+                          .attr({x: 200, y:0})
+                          .checkHits('sche')
+                          .bind("HitOn", function(hitData)
+                                        {
+                                          mainText.text("ow!");
+                                          readStory();
+                                        });
+
+
+
+      Crafty.sprite("imgs/story.png", {story:[0,0,17,24]});
+
+      var story = Crafty.e("2D, DOM, story, Collision")
+                          .attr({x: 300, y:200})
+                          .checkHits('sche')
+                          .bind("HitOn", function(hitData)
+                                        {
+                                            //  readStory();
+                                            mainText.text("hello, Ana!");
+                                            this.destroy();
+                                        });
+
+
+
+       mainText.text('Hello, my darling.');
+
+       function readStory()
+       {
+          textLine.attr({y:300});   
+          mainText.text("left arrow: go back. right arrow: go forward");
+       }
+    </script>
+  </body>
+</html>
